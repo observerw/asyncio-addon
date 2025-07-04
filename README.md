@@ -8,8 +8,7 @@ Some convenient utilities for asyncio.
 Utilities include:
 
 - [`@async_main`](src/asyncio_addon/decorator.py): A decorator to run an async function as the main entry point.
-- [`run_async`](src/asyncio_addon/sync.py): Run a coroutine in sync, even if the async event loop is running.
-- [`run_sync`](src/asyncio_addon/sync.py): An alias of `asyncio.to_thread`. Run a coroutine in a separate thread, blocking until it's done.
+- [`run_sync`](src/asyncio_addon/sync.py): Run a coroutine in sync, even if the async event loop is running.
+- [`run_async`](src/asyncio_addon/sync.py): An alias of `asyncio.to_thread`. Run a sync function in a separate thread.
 - [`SemGroup`](src/asyncio_addon/task_group.py): A task group with a semaphore, allowing limited concurrency.
-- [`gather`](src/asyncio_addon/task_group.py): A better `asyncio.gather` that supports limited concurrency and exception handling.
-- [`gather_all`](src/asyncio_addon/task_group.py): A variant of `gather` that returns all results, including exceptions, without raising them.
+- [`gather_all`](src/asyncio_addon/task.py): Enhanced version of `asyncio.gather` with concurrency control and improved error handling.
