@@ -6,7 +6,7 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
-def async_main():
+def async_main(func: Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, R]:
     """
     Decorator that use `asyncio.run` to run the function.
 
@@ -23,10 +23,7 @@ def async_main():
     ```
     """
 
-    def decorator(func: Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, R]:
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-            return aio.run(func(*args, **kwargs))
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        return aio.run(func(*args, **kwargs))
 
-        return wrapper
-
-    return decorator
+    return wrapper
