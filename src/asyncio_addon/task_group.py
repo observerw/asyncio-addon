@@ -1,8 +1,8 @@
 import asyncio as aio
 import contextlib
-from collections.abc import AsyncGenerator, Coroutine, Iterable, Sequence
+from collections.abc import AsyncGenerator, Coroutine
 from dataclasses import dataclass
-from typing import Any, Literal, Self, TypeVar, overload
+from typing import Any, Self, TypeVar
 
 T = TypeVar("T")
 
@@ -17,9 +17,7 @@ class SemGroup:
     @classmethod
     @contextlib.asynccontextmanager
     async def create(
-        cls,
-        *,
-        concurrency: int | None = None,
+        cls, *, concurrency: int | None = None
     ) -> AsyncGenerator[Self, None]:
         sem = aio.Semaphore(concurrency) if concurrency else None
         async with aio.TaskGroup() as tg:
@@ -34,47 +32,3 @@ class SemGroup:
                 return await coro
 
         return self.tg.create_task(wrapper())
-
-
-@overload
-async def gather_all(
-    coros: Iterable[Coroutine[Any, Any, T]],
-    *,
-    concurrency: int | None = None,
-    return_exceptions: Literal[True],
-) -> Sequence[T | BaseException]: ...
-
-
-@overload
-async def gather_all(
-    coros: Iterable[Coroutine[Any, Any, T]],
-    *,
-    concurrency: int | None = None,
-    return_exceptions: Literal[False] = ...,
-) -> Sequence[T]: ...
-
-
-async def gather_all(
-    coros: Iterable[Coroutine[Any, Any, T]],
-    *,
-    concurrency: int | None = None,
-    return_exceptions: bool = False,
-) -> Sequence[T | BaseException]:
-    """A better `asyncio.gather`"""
-
-    async def task(coro: Coroutine[Any, Any, T]) -> T | BaseException:
-        if not return_exceptions:
-            return await coro
-
-        try:
-            return await coro
-        except Exception as e:
-            return e
-
-    async with SemGroup.create(concurrency=concurrency) as tg:
-        tasks = [tg.create_task(task(coro)) for coro in coros]
-    return [task.result() for task in tasks]
-
-
-async def gather(*coros: Coroutine[Any, Any, T]) -> Sequence[T]:
-    return await gather_all(coros, return_exceptions=False)
