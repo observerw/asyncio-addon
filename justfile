@@ -62,16 +62,46 @@ release version="" dry="true":
     fi
 
 release-patch dry="true":
+    #!/usr/bin/env bash
     @echo "Releasing patch version..."
-    just release patch dry={{ dry }}
+    just bump patch tag=true {{ dry }}
+    if [ "{{ dry }}" = "false" ]; then
+        new_version=$(just get-version | tail -1)
+        git push origin "v$new_version"
+        echo "✅ Release process started!"
+        echo "GitHub Actions will handle:"
+        echo "  - Building the package"
+        echo "  - Publishing to PyPI" 
+        echo "  - Creating GitHub Release"
+    fi
 
 release-minor dry="true":
+    #!/usr/bin/env bash
     @echo "Releasing minor version..."
-    just release minor dry={{ dry }}
+    just bump minor tag=true {{ dry }}
+    if [ "{{ dry }}" = "false" ]; then
+        new_version=$(just get-version | tail -1)
+        git push origin "v$new_version"
+        echo "✅ Release process started!"
+        echo "GitHub Actions will handle:"
+        echo "  - Building the package"
+        echo "  - Publishing to PyPI" 
+        echo "  - Creating GitHub Release"
+    fi
 
 release-major dry="true":
+    #!/usr/bin/env bash
     @echo "Releasing major version..."
-    just release major dry={{ dry }}
+    just bump major tag=true {{ dry }}
+    if [ "{{ dry }}" = "false" ]; then
+        new_version=$(just get-version | tail -1)
+        git push origin "v$new_version"
+        echo "✅ Release process started!"
+        echo "GitHub Actions will handle:"
+        echo "  - Building the package"
+        echo "  - Publishing to PyPI" 
+        echo "  - Creating GitHub Release"
+    fi
 
 clean:
     @echo "Cleaning build artifacts..."
