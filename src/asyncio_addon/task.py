@@ -1,11 +1,13 @@
 from collections.abc import Coroutine, Iterable, Sequence
-from typing import Any, Literal, overload
+from typing import Any, Literal, TypeVar, overload
 
 from .task_group import SemGroup
 
+T = TypeVar("T")
+
 
 @overload
-async def gather_all[T](
+async def gather_all(
     coros: Iterable[Coroutine[Any, Any, T]],
     *,
     concurrency: int | None = None,
@@ -14,7 +16,7 @@ async def gather_all[T](
 
 
 @overload
-async def gather_all[T](
+async def gather_all(
     coros: Iterable[Coroutine[Any, Any, T]],
     *,
     concurrency: int | None = None,
@@ -22,7 +24,7 @@ async def gather_all[T](
 ) -> Sequence[T]: ...
 
 
-async def gather_all[T](
+async def gather_all(
     coros: Iterable[Coroutine[Any, Any, T]],
     *,
     concurrency: int | None = None,
@@ -44,5 +46,5 @@ async def gather_all[T](
     return [task.result() for task in tasks]
 
 
-async def gather[T](*coros: Coroutine[Any, Any, T]) -> Sequence[T]:
+async def gather(*coros: Coroutine[Any, Any, T]) -> Sequence[T]:
     return await gather_all(coros, return_exceptions=False)

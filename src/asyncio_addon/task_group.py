@@ -2,7 +2,9 @@ import asyncio as aio
 import contextlib
 from collections.abc import AsyncGenerator, Coroutine, Iterable, Sequence
 from dataclasses import dataclass
-from typing import Any, Literal, Self, overload
+from typing import Any, Literal, Self, TypeVar, overload
+
+T = TypeVar("T")
 
 
 @dataclass(frozen=True)
@@ -23,7 +25,7 @@ class SemGroup:
         async with aio.TaskGroup() as tg:
             yield cls(tg=tg, sem=sem)
 
-    def create_task[T](self, coro: Coroutine[Any, Any, T]) -> aio.Task[T]:
+    def create_task(self, coro: Coroutine[Any, Any, T]) -> aio.Task[T]:
         async def wrapper() -> T:
             if not self.sem:
                 return await coro
@@ -35,7 +37,7 @@ class SemGroup:
 
 
 @overload
-async def gather_all[T](
+async def gather_all(
     coros: Iterable[Coroutine[Any, Any, T]],
     *,
     concurrency: int | None = None,
@@ -44,7 +46,7 @@ async def gather_all[T](
 
 
 @overload
-async def gather_all[T](
+async def gather_all(
     coros: Iterable[Coroutine[Any, Any, T]],
     *,
     concurrency: int | None = None,
@@ -52,7 +54,7 @@ async def gather_all[T](
 ) -> Sequence[T]: ...
 
 
-async def gather_all[T](
+async def gather_all(
     coros: Iterable[Coroutine[Any, Any, T]],
     *,
     concurrency: int | None = None,
@@ -74,5 +76,5 @@ async def gather_all[T](
     return [task.result() for task in tasks]
 
 
-async def gather[T](*coros: Coroutine[Any, Any, T]) -> Sequence[T]:
+async def gather(*coros: Coroutine[Any, Any, T]) -> Sequence[T]:
     return await gather_all(coros, return_exceptions=False)

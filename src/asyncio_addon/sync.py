@@ -2,10 +2,12 @@ import asyncio as aio
 import threading
 from collections.abc import Coroutine
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any
+from typing import Any, TypeVar
+
+T = TypeVar("T")
 
 
-def run_sync[T](
+def run_sync(
     coroutine: Coroutine[Any, Any, T],
     *,
     timeout: float = 60,

@@ -1,6 +1,9 @@
 import asyncio as aio
 from collections.abc import Callable, Coroutine
-from typing import Any
+from typing import Any, ParamSpec, TypeVar
+
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 def async_main():
@@ -20,7 +23,7 @@ def async_main():
     ```
     """
 
-    def decorator[**P, R](func: Callable[P, Coroutine[Any, Any, R]]):
+    def decorator(func: Callable[P, Coroutine[Any, Any, R]]) -> Callable[P, R]:
         def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             return aio.run(func(*args, **kwargs))
 
