@@ -100,7 +100,7 @@ async def gather_all(
 
         >>> async def main():
         ...     results = await gather_all(
-        ...         [may_fail(i) for i in range(5)],
+        ...         (may_fail(i) for i in range(5)),
         ...         return_exceptions=True
         ...     )
         ...     # Results will contain both values and exceptions
