@@ -23,12 +23,19 @@ class SemGroup:
         async with aio.TaskGroup() as tg:
             yield cls(tg=tg, sem=sem)
 
-    def create_task(self, coro: Coroutine[Any, Any, T]) -> aio.Task[T]:
+    def create_task(
+        self,
+        coro: Coroutine[Any, Any, T],
+        *,
+        timeout: float | None = None,
+    ) -> aio.Task[T]:
         async def wrapper() -> T:
+            coro_task = aio.wait_for(coro, timeout)
+
             if not self.sem:
-                return await coro
+                return await coro_task
 
             async with self.sem:
-                return await coro
+                return await coro_task
 
         return self.tg.create_task(wrapper())
