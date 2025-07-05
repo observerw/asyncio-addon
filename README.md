@@ -14,3 +14,9 @@ Utilities include:
 - [`gather_all`](src/asyncio_addon/task.py): Enhanced version of `asyncio.gather` with concurrency control, better API and cancel-safety.
 
 (Almost) everything natively include `timeout` control.
+
+## Why do we need another `gather_all`?
+
+As the [doc](https://docs.python.org/3/library/asyncio-task.html#asyncio.gather) says:
+
+> A new alternative to create and run tasks concurrently and wait for their completion is asyncio.TaskGroup. TaskGroup provides stronger safety guarantees than gather for scheduling a nesting of subtasks: if a task (or a subtask, a task scheduled by a task) raises an exception, TaskGroup will, while gather will not, cancel the remaining scheduled tasks.
