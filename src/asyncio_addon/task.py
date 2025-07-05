@@ -12,6 +12,7 @@ async def gather_all(
     *,
     concurrency: int | None = None,
     return_exceptions: Literal[True],
+    timeout: float | None = None,
 ) -> Sequence[T | BaseException]: ...
 
 
@@ -21,6 +22,7 @@ async def gather_all(
     *,
     concurrency: int | None = None,
     return_exceptions: Literal[False] = ...,
+    timeout: float | None = None,
 ) -> Sequence[T]: ...
 
 
@@ -29,6 +31,7 @@ async def gather_all(
     *coro: Coroutine[Any, Any, T],
     concurrency: int | None = ...,
     return_exceptions: Literal[True] = ...,
+    timeout: float | None = None,
 ) -> Sequence[T | BaseException]: ...
 
 
@@ -37,6 +40,7 @@ async def gather_all(
     *coro: Coroutine[Any, Any, T],
     concurrency: int | None = ...,
     return_exceptions: Literal[False] = ...,
+    timeout: float | None = None,
 ) -> Sequence[T]: ...
 
 
@@ -45,12 +49,16 @@ async def gather_all(
     *coro: Coroutine[Any, Any, T],
     concurrency: int | None = None,
     return_exceptions: bool = False,
+    timeout: float | None = None,
 ) -> Sequence[T | BaseException]:
     """Enhanced version of asyncio.gather with concurrency control.
 
     Executes multiple coroutines concurrently with optional concurrency limiting
     and improved error handling. Unlike asyncio.gather, this function allows you
     to control the maximum number of concurrent tasks.
+
+    Note that this function requires all coroutines to be of same type.
+    If you need to handle different types, consider using `SemGroup`.
 
     Args:
         *coro: Additional coroutines to execute (can be iterable or variadic arguments).
@@ -59,6 +67,8 @@ async def gather_all(
         return_exceptions: If True, exceptions are returned as results instead
             of being raised. If False, the first exception encountered will
             be raised. Defaults to False.
+        timeout: Maximum time in seconds to wait for the coroutines to complete.
+            If None, there is no timeout. Defaults to None.
 
     Returns:
         A sequence containing the results of all coroutines. If return_exceptions
@@ -67,6 +77,7 @@ async def gather_all(
 
     Raises:
         Exception: Any exception from the coroutines if return_exceptions is False.
+        asyncio.TimeoutError: If the operation times out.
 
     Examples:
         Basic usage with multiple coroutines:
@@ -114,6 +125,18 @@ async def gather_all(
         ...         fetch_data("url3"),
         ...         concurrency=2
         ...     )
+
+        With timeout:
+
+        >>> async def main():
+        ...     try:
+        ...         results = await gather_all(
+        ...             (fetch_data(f"url{i}") for i in range(10)),
+        ...             concurrency=2,
+        ...             timeout=5
+        ...         )
+        ...     except asyncio.TimeoutError:
+        ...         print("Operation timed out")
     """
 
     async def task(coro: Coroutine[Any, Any, T]) -> T | BaseException:
@@ -129,5 +152,9 @@ async def gather_all(
     coros = [*coros, *coro]
 
     async with SemGroup.create(concurrency=concurrency) as tg:
-        tasks = [tg.create_task(task(coro)) for coro in coros]
+        tasks = [
+            tg.create_task(task(coro), timeout=timeout)  #
+            for coro in coros
+        ]
+
     return [task.result() for task in tasks]

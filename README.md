@@ -11,4 +11,6 @@ Utilities include:
 - [`run_sync`](src/asyncio_addon/sync.py): Run a coroutine in sync, even if the async event loop is running.
 - [`run_async`](src/asyncio_addon/sync.py): An alias of `asyncio.to_thread`. Run a sync function in a separate thread.
 - [`SemGroup`](src/asyncio_addon/task_group.py): A task group with a semaphore, allowing limited concurrency.
-- [`gather_all`](src/asyncio_addon/task.py): Enhanced version of `asyncio.gather` with concurrency control and improved error handling.
+- [`gather_all`](src/asyncio_addon/task.py): Enhanced version of `asyncio.gather` with concurrency control, better API and cancel-safety.
+
+(Almost) everything natively include `timeout` control.
